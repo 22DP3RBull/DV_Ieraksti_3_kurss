@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
+use Illuminate\Support\Facades\Log;
 
 class StudentController extends Controller
 {
@@ -27,17 +28,24 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'surname' => 'required|string|max:255',
-            'room' => 'required|string|max:255',
-            'floor' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|ends_with:@rvt.lv',
-            'checkedIn' => 'required|boolean',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255|regex:/^[a-zA-Zāčēģīķļņōŗšūž\s\-]+$/',
+                'surname' => 'required|string|max:255|regex:/^[a-zA-Zāčēģīķļņōŗšūž\s\-]+$/',
+                'room' => 'required|string|max:255|regex:/^(1[0-2][0-8]|2[0-2][0-8]|3[0-2][0-8]|4[0-2][0-8]|5[0-2][0-8])$/',
+                'floor' => 'required|string|max:255|regex:/^[1-5]$/',
+                'phone' => 'required|string|size:8|regex:/^\d{8}$/',
+                'email' => 'required|string|email|max:255|ends_with:@rvt.lv',
+            ]);
 
-        return Student::create($request->all());
+            return Student::create($request->all());
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error adding student: ' . $e->getMessage());
+            return response()->json(['error' => 'Validation error: ' . $e->getMessage()], 422);
+        } catch (\Exception $e) {
+            Log::error('Error adding student: ' . $e->getMessage());
+            return response()->json(['error' => 'Error adding student: ' . $e->getMessage()], 500);
+        }
     }
 
     public function update(Request $request, $id)
@@ -47,6 +55,15 @@ class StudentController extends Controller
         ]);
 
         $student = Student::findOrFail($id);
+
+        if ($request->checkedIn && $student->checkedIn) {
+            return response()->json(['error' => 'Student is already checked in'], 400);
+        }
+
+        if (!$request->checkedIn && !$student->checkedIn) {
+            return response()->json(['error' => 'Student is already checked out'], 400);
+        }
+
         $student->update($request->only('checkedIn'));
 
         return $student;

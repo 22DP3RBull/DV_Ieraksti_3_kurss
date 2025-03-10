@@ -71,10 +71,55 @@ footer {
 
 .popup-content {
   background: white;
-  padding: 20px;
+  padding: 30px;
+  border-radius: 10px;
+  width: 500px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  text-align: left;
+}
+
+.popup-content h2 {
+  margin-top: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.popup-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.popup-content label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.popup-content select, 
+.popup-content input[type="text"], 
+.popup-content input[type="email"] {
+  padding: 12px;
+  border: 1px solid #ccc;
   border-radius: 5px;
-  width: 400px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
+  width: calc(100% - 24px); /* Adjust width to be almost full width */
+}
+
+.popup-content button.btn {
+  padding: 12px 25px;
+  font-size: 16px;
+}
+
+.popup-content button.btn:first-of-type {
+  margin-right: 10px;
+}
+
+.popup-content button.btn:last-of-type {
+  background-color: #f44336;
+}
+
+.popup-content button.btn:last-of-type:hover {
+  background-color: #e53935;
 }
 
 form {

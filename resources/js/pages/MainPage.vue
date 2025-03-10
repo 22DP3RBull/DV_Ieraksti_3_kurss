@@ -120,12 +120,12 @@ export default {
     },
     async checkInStudent() {
       try {
-        const response = await axios.put(`/api/students/${this.selectedStudent}`, { checkedIn: true });
+        await axios.put(`/api/students/${this.selectedStudent}`, { checkedIn: true });
         this.showNotification('Student checked in successfully', 'success');
         this.closePopup();
       } catch (error) {
-        if (error.response && error.response.data && error.response.data.errors) {
-          this.showNotification('Error checking in student: ' + Object.values(error.response.data.errors).join(', '), 'error');
+        if (error.response && error.response.data && error.response.data.error) {
+          this.showNotification('Error: ' + error.response.data.error, 'error');
         } else {
           this.showNotification('Error checking in student', 'error');
         }
@@ -134,12 +134,12 @@ export default {
     },
     async checkOutStudent() {
       try {
-        const response = await axios.put(`/api/students/${this.selectedStudent}`, { checkedIn: false });
+        await axios.put(`/api/students/${this.selectedStudent}`, { checkedIn: false });
         this.showNotification('Student checked out successfully', 'success');
         this.closePopup();
       } catch (error) {
-        if (error.response && error.response.data && error.response.data.errors) {
-          this.showNotification('Error checking out student: ' + Object.values(error.response.data.errors).join(', '), 'error');
+        if (error.response && error.response.data && error.response.data.error) {
+          this.showNotification('Error: ' + error.response.data.error, 'error');
         } else {
           this.showNotification('Error checking out student', 'error');
         }

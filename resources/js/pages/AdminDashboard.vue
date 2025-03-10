@@ -81,13 +81,10 @@
             <label for="email">Email:</label>
             <input type="email" id="email" v-model="studentForm.email" required>
           </div>
-          <div>
-            <label for="checkedIn">Checked In:</label>
-            <input type="checkbox" id="checkedIn" v-model="studentForm.checkedIn">
-          </div>
           <button type="submit" class="btn">{{ isEditing ? 'Update' : 'Add' }}</button>
           <button @click="closePopup" class="btn">Cancel</button>
         </form>
+        <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
       </div>
     </div>
   </div>
@@ -110,9 +107,9 @@ export default {
         room: '',
         floor: '',
         phone: '',
-        email: '',
-        checkedIn: false
-      }
+        email: ''
+      },
+      errorMessage: ''
     }
   },
   methods: {
@@ -131,6 +128,7 @@ export default {
     },
     closePopup() {
       this.showPopup = false;
+      this.errorMessage = '';
     },
     resetForm() {
       this.studentForm = {
@@ -140,8 +138,7 @@ export default {
         room: '',
         floor: '',
         phone: '',
-        email: '',
-        checkedIn: false
+        email: ''
       };
     },
     async fetchStudents() {
@@ -153,12 +150,44 @@ export default {
       }
     },
     async addStudent() {
+      const namePattern = /^[a-zA-Zāčēģīķļņōŗšūž\s\-]+$/;
+      const phonePattern = /^\d{8}$/;
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@rvt\.lv$/;
+      const floorPattern = /^[1-5]$/;
+      const roomPattern = /^(1[0-2][0-8]|2[0-2][0-8]|3[0-2][0-8]|4[0-2][0-8]|5[0-2][0-8])$/;
+
+      if (!namePattern.test(this.studentForm.name)) {
+        alert('Invalid name. Only letters, spaces, hyphens, and softening marks are allowed.');
+        return;
+      }
+      if (!namePattern.test(this.studentForm.surname)) {
+        alert('Invalid surname. Only letters, spaces, hyphens, and softening marks are allowed.');
+        return;
+      }
+      if (!phonePattern.test(this.studentForm.phone)) {
+        alert('Invalid phone number. It must be 8 digits.');
+        return;
+      }
+      if (!emailPattern.test(this.studentForm.email)) {
+        alert('Invalid email. It must end with @rvt.lv.');
+        return;
+      }
+      if (!floorPattern.test(this.studentForm.floor)) {
+        alert('Invalid floor. It must be between 1 and 5.');
+        return;
+      }
+      if (!roomPattern.test(this.studentForm.room)) {
+        alert('Invalid room. It must be between 101-128, 201-228, 301-328, 401-428, or 501-528.');
+        return;
+      }
+
       try {
         await axios.post('/api/students', this.studentForm);
         this.fetchStudents();
         this.closePopup();
       } catch (error) {
         console.error('Error adding student:', error);
+        this.errorMessage = error.response?.data?.error || 'An error occurred while adding the student.';
       }
     },
     async updateStudent() {
